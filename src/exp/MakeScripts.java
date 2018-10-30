@@ -17,7 +17,7 @@ public class MakeScripts {
     public static float duration = 1000f;
     public static int task_id = 0;
     public static int job_id = 0;
-    public static int num_repetitions = 5;
+    public static int num_repetitions = 1;
     public static int max_exponent = 7;
 
     public static void main(String[] args) {
@@ -50,10 +50,20 @@ public class MakeScripts {
             for(String config : Utils.get_configs()){
                 File config_file = new File(config);
                 String config_name =  config_file.getName().replaceFirst("[.][^.]+$", "");
+                int num_nodes = Integer.parseInt(config_name);
 
                 for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
 
                     int num_partitions = (int) Math.pow(2d,log_num_partitions);
+
+                    if( 2*num_partitions > num_nodes )
+                        continue;
+
+                    if( num_nodes>5000 && num_partitions<4 )
+                        continue;
+
+                    if( num_nodes>10000 && num_partitions<16 )
+                        continue;
 
                     Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
 
@@ -95,21 +105,13 @@ public class MakeScripts {
         }
 
         // put them all into a single job
-        for(List<Task> e : config_to_tasks.values()){
-            jobs.add(new Job(job_id++,100, e));
-        }
-
-
+        for(List<Task> e : config_to_tasks.values())
+            jobs.add(new Job(job_id++, 100, e));
 
         return jobs;
     }
 
     public static void make_mpi_scripts(List<Job> jobs){
-
-        // Check we are on Cori
-//        String scratch_folder = System.getenv().keySet().contains("SCRATCH") ?
-//                System.getenv("SCRATCH") :
-//                "C:/Users/gomes/code/otm/otm-mpi-experiments";   // for debugging by Gabriel
 
         // write files
         Path jobs_folder = Utils.get_jobs_path();

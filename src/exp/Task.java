@@ -7,7 +7,7 @@ public class Task {
     public enum TaskType {SERIAL,MPI}
     public int task_id;
     public String config_name;
-    public Path prefix;
+    private Path prefix;
     public int num_partitions;
     public int repetition;
 
@@ -29,5 +29,11 @@ public class Task {
 
     public String get_prefix(){
         return prefix.getFileName().toString();
+    }
+
+    public String get_prefix_generic(){
+        return prefix.toString()
+                .replace(System.getenv("HOME"),"$HOME")
+                .replace("/code","");
     }
 }
