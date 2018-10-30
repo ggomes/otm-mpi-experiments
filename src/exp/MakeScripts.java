@@ -25,17 +25,47 @@ public class MakeScripts {
         script_folder = Paths.get(Utils.get_root_path().toString(),"scripts");
         split_files_folder = Paths.get(Utils.get_root_path().toString(),"split_files");
 
-        List<Task> tasks = make_splitter_script();
-
+        List<Task> tasks = create_tasks();
+        make_splitter_script(tasks);
         List<Job> jobs = tasks_to_jobs(tasks);
-
         make_mpi_scripts(jobs);
+    }
+
+    public static List<Task> create_tasks() {
+
+        List<Task> tasks = new ArrayList<>();
+
+        for(String config : Utils.get_configs()){
+            File config_file = new File(config);
+            String config_name =  config_file.getName().replaceFirst("[.][^.]+$", "");
+            int num_nodes = Integer.parseInt(config_name);
+
+            for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
+
+                int num_partitions = (int) Math.pow(2d,log_num_partitions);
+
+                if( 2*num_partitions > num_nodes )
+                    continue;
+
+                if( num_nodes>5000 && num_partitions<4 )
+                    continue;
+
+                if( num_nodes>10000 && num_partitions<16 )
+                    continue;
+
+                Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
+//                boolean x = new File(out_path.toUri()).mkdirs();
+                Path prefix = Paths.get(out_path.toString(),String.format("%s_%d", config_name, num_partitions));
+
+                for(int r=0;r<num_repetitions;r++)
+                    tasks.add(new Task(task_id++,config,config_name,prefix,num_partitions,r));
+            }
+        }
+        return tasks;
 
     }
 
-    public static List<Task> make_splitter_script() {
-
-        List<Task> tasks = new ArrayList<>();
+    public static void make_splitter_script(List<Task> tasks) {
 
         // make the scripts
         Path script = Paths.get(script_folder.toString(),"split_all.sh");
@@ -46,36 +76,12 @@ public class MakeScripts {
             task_writer.write("cd $OTMMPIHOME/src/main/java\n");
             task_writer.write("javac -d $OTMMPIHOME/out_javac -cp $OTMSIMJAR:$OTMMPIHOME/lib/* metis/*.java metagraph/*.java translator/*.java xmlsplitter/*.java\n");
             task_writer.write("cd $OTMMPIHOME/out_javac\n");
-
-            for(String config : Utils.get_configs()){
-                File config_file = new File(config);
-                String config_name =  config_file.getName().replaceFirst("[.][^.]+$", "");
-                int num_nodes = Integer.parseInt(config_name);
-
-                for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
-
-                    int num_partitions = (int) Math.pow(2d,log_num_partitions);
-
-                    if( 2*num_partitions > num_nodes )
-                        continue;
-
-                    if( num_nodes>5000 && num_partitions<4 )
-                        continue;
-
-                    if( num_nodes>10000 && num_partitions<16 )
-                        continue;
-
-                    Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
-
-                    boolean x = new File(out_path.toUri()).mkdirs();
-
-                    Path prefix = Paths.get(out_path.toString(),String.format("%s_%d", config_name, num_partitions));
-                    task_writer.write(String.format("java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter %s %s %d\n",
-                            prefix, config_file, num_partitions));
-
-                    for(int r=0;r<num_repetitions;r++)
-                        tasks.add(new Task(task_id++,config_name,prefix,num_partitions,r));
-                }
+            for(Task task : tasks){
+                Path out_path = Paths.get(split_files_folder.toString(), task.config_name,String.format("%d",task.num_partitions));
+                task_writer.write(String.format("mkdir -p %s\n",out_path));
+                File config_file = new File(task.config);
+                task_writer.write(String.format("java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter %s %s %d\n",
+                        task.get_prefix_generic(), Utils.to_generic(config_file.toString()), task.num_partitions));
             }
         } catch (FileNotFoundException e) {
             e.printStackTrace();
@@ -85,7 +91,6 @@ public class MakeScripts {
             task_writer.close();
         }
 
-        return tasks;
     }
 
     public static List<Job> tasks_to_jobs(List<Task> tasks){

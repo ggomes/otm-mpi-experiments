@@ -33,5 +33,9 @@ public class Utils {
     public static Path get_root_path(){
         return Paths.get(System.getProperty("user.dir"));
     }
+    
+    public static String to_generic(String x){
+        return x.replace(System.getenv("HOME"),"$HOME");
+    }
 
 }

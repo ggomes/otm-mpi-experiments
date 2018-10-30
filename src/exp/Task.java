@@ -6,13 +6,15 @@ public class Task {
 
     public enum TaskType {SERIAL,MPI}
     public int task_id;
+    public String config;
     public String config_name;
     private Path prefix;
     public int num_partitions;
     public int repetition;
 
-    public Task(int task_id, String config_name,Path prefix, int num_partitions, int repetition) {
+    public Task(int task_id, String config,String config_name,Path prefix, int num_partitions, int repetition) {
         this.task_id = task_id;
+        this.config = config;
         this.config_name = config_name;
         this.prefix = prefix;
         this.num_partitions = num_partitions;
@@ -32,8 +34,6 @@ public class Task {
     }
 
     public String get_prefix_generic(){
-        return prefix.toString()
-                .replace(System.getenv("HOME"),"$HOME")
-                .replace("/code","");
+        return Utils.to_generic(prefix.toString());
     }
 }
