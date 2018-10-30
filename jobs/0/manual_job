@@ -1,0 +1,19 @@
+#!/bin/bash
+#SBATCH --nodes=3
+#SBATCH --time=00:40:00
+#SBATCH --job-name=job0
+#SBATCH --error=$HOME/code/otm-mpi-experiments/jobs/0/std_error
+#SBATCH --output=$HOME/code/otm-mpi-experiments/jobs/0/std_out
+#SBATCH --mail-user=gomes@berkeley.edu
+#SBATCH --mail-type=ALL,TIME_LIMIT
+#SBATCH --constraint=haswell
+#SBATCH --qos=regular
+#SBATCH --license=SCRATCH
+#SBATCH --output=my_job.o%j
+mpiexec -N 1 -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -N 1 -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
+mpiexec -N 1 -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -N 1 -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
+mpiexec -N 1 -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -N 2 -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
+wait
