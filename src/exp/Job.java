@@ -48,12 +48,13 @@ public class Job {
             int total_minutes = 40;
             manual_writer.write(get_manual_batch_string(path,job_id,total_nodes,total_minutes));
             for (Task task : tasks)
-                manual_writer.write(String.format("mpiexec -N %d -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$HOME/otm-mpi/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
+                manual_writer.write(String.format("mpiexec -N %d -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
                         task.get_num_nodes(),
                         task.num_partitions,
                         task.get_prefix_generic()) );
             manual_writer.write("wait\n");
             manual_writer.close();
+//mpiexec -N 1 -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $OTMMPIEXPHOME/split_files/100/2/100_2 2 1000 false &
 
 
         } catch (FileNotFoundException e) {
@@ -106,8 +107,10 @@ public class Job {
 
     public String get_manual_batch_string(Path path,int job_id,int total_nodes,int total_minutes){
 
-        String errorfile = Paths.get(path.toString(),"std_error").toString();
-        String outfile = Paths.get(path.toString(),"std_out").toString();
+        String generic_path = Utils.to_generic(path.toString());
+
+        String errorfile = Paths.get(generic_path,"std_error").toString();
+        String outfile = Paths.get(generic_path,"std_out").toString();
         String jobname = String.format("job%d",job_id);
 
         Date d = new Date(total_minutes * 60L * 1000L);
@@ -126,11 +129,12 @@ public class Job {
                         "#SBATCH --mail-type=ALL,TIME_LIMIT\n"+
                         "#SBATCH --constraint=haswell\n"+
                         "#SBATCH --qos=regular\n"+
-                        "#SBATCH --ntasks-per-node=1\n"+
+//                        "#SBATCH --ntasks-per-node=1\n"+
                         "#SBATCH --license=SCRATCH\n"+
                         "#SBATCH --output=my_job.o%%j\n"
                         , total_nodes,time,jobname,errorfile,outfile );
     }
+
 
     public String get_serial_run_string(){
 

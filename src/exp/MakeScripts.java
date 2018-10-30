@@ -121,6 +121,10 @@ public class MakeScripts {
         // write files
         Path jobs_folder = Utils.get_jobs_path();
 
+        // write individual job files
+        for(Job job : jobs)
+            job.write_files(jobs_folder);
+
         // write job and task list
         try {
             Path job_file = Paths.get(jobs_folder.toString(),"job_list.txt");
@@ -143,9 +147,6 @@ public class MakeScripts {
             e.printStackTrace();
         }
 
-        // write individual job files
-        for(Job job : jobs)
-            job.write_files(jobs_folder);
     }
 
 }
