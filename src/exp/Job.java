@@ -66,44 +66,44 @@ public class Job {
         }
     }
 
-    public void write_executable_file(Path path,String name,String str){
-        try {
-            Path task_file = Paths.get(path.toString(),name);
-            PrintWriter task_writer = new PrintWriter(task_file.toFile(), "UTF-8");
-            task_writer.write(str);
-            task_writer.close();
-//            Files.setPosixFilePermissions(task_file, PosixFilePermissions.fromString("rwxrwxr-x"));
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public String get_job_string(Path path,int job_id){
-
-        String errorfile = Paths.get(path.toString(),"std_error").toString();
-        String outfile = Paths.get(path.toString(),"std_out").toString();
-        String jobname = String.format("job%d",job_id);
-
-        return String.format(
-                "#!/bin/bash\n"+
-                "#SBATCH --nodes=%d\n"+
-                "#SBATCH --cpus-per-task=64\n"+
-                "#SBATCH --time=00:%02d:00\n"+
-                "#SBATCH --job-name=%s\n"+
-                "#SBATCH --error=%s\n"+
-                "#SBATCH --output=%s\n"+
-                "#SBATCH --mail-user=gomes@berkeley.edu\n"+
-                "#SBATCH --mail-type=ALL,TIME_LIMIT\n"+
-                "#SBATCH --constraint=haswell\n"+
-                "#SBATCH --qos=regular\n"+
-                "#SBATCH --ntasks-per-node=1\n"+
-                "#SBATCH --license=SCRATCH\n"+
-                "#SBATCH --output=my_job.o%%j\n" +
-                "export PATH=$PATH:/usr/common/tig/taskfarmer/1.5/bin:$(pwd)\n" +
-                "export THREADS=32\n" +
-                "runcommands.sh tasks", allocate_nodes,allocate_minutes,jobname,errorfile,outfile );
-    }
+//    public void write_executable_file(Path path,String name,String str){
+//        try {
+//            Path task_file = Paths.get(path.toString(),name);
+//            PrintWriter task_writer = new PrintWriter(task_file.toFile(), "UTF-8");
+//            task_writer.write(str);
+//            task_writer.close();
+////            Files.setPosixFilePermissions(task_file, PosixFilePermissions.fromString("rwxrwxr-x"));
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+//
+//    public String get_job_string(Path path,int job_id){
+//
+//        String errorfile = Paths.get(path.toString(),"std_error").toString();
+//        String outfile = Paths.get(path.toString(),"std_out").toString();
+//        String jobname = String.format("job%d",job_id);
+//
+//        return String.format(
+//                "#!/bin/bash\n"+
+//                "#SBATCH --nodes=%d\n"+
+//                "#SBATCH --cpus-per-task=64\n"+
+//                "#SBATCH --time=00:%02d:00\n"+
+//                "#SBATCH --job-name=%s\n"+
+//                "#SBATCH --error=%s\n"+
+//                "#SBATCH --output=%s\n"+
+//                "#SBATCH --mail-user=gomes@berkeley.edu\n"+
+//                "#SBATCH --mail-type=ALL,TIME_LIMIT\n"+
+//                "#SBATCH --constraint=haswell\n"+
+//                "#SBATCH --qos=regular\n"+
+//                "#SBATCH --ntasks-per-node=1\n"+
+//                "#SBATCH --license=SCRATCH\n"+
+//                "#SBATCH --output=my_job.o%%j\n" +
+//                "export PATH=$PATH:/usr/common/tig/taskfarmer/1.5/bin:$(pwd)\n" +
+//                "export THREADS=32\n" +
+//                "runcommands.sh tasks", allocate_nodes,allocate_minutes,jobname,errorfile,outfile );
+//    }
 
     public String get_manual_batch_string(Path path,int job_id,int total_nodes,int total_minutes){
 
@@ -133,44 +133,6 @@ public class Job {
                         "#SBATCH --license=SCRATCH\n"+
                         "#SBATCH --output=my_job.o%%j\n"
                         , total_nodes,time,jobname,errorfile,outfile );
-    }
-
-
-    public String get_serial_run_string(){
-
-        // RunnerSerial:
-        // 0 boolean : write_beats_output
-        // 1 config_file_name
-        // 2 float : sim_dt
-        // 3 float : out_dt
-        // 4 float : duration
-        // 5 output_folder
-
-        // args:
-        // $1 id
-        // $2 config_file_name
-        // $3 num partitions (ignored)
-
-        return String.format(
-                        "#!/bin/bash\n" +
-                        "mkdir $SCRATCH/out/$1\n" +
-                        "java -cp $BEATSSIMJAR:$HOME/beats-mpi/out_javac runner/RunnerSerial true $SCRATCH/cfg/$2 %.0f %.0f %.0f $SCRATCH/out/$1\n",
-                MakeScripts.sim_dt,null,MakeScripts.duration);
-    }
-
-    public String get_mpi_run_string(){
-
-        // RunnerTask:
-        // 0 mpi id
-        // 1 config file name
-
-        // args:
-        // $1 id
-        // $2 config file
-        // $3 num partitions
-
-        return "#!/bin/bash\n" +
-                "mpiexec -n $3 java -cp $BEATSSIMJAR:$HOME/beats-mpi/out_mpijavac runner/RunnerTask $1 $2\n";
     }
 
 }
