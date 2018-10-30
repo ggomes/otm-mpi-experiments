@@ -4,9 +4,7 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.attribute.PosixFilePermissions;
 import java.text.SimpleDateFormat;
-import java.time.Period;
 import java.util.*;
 
 public class Job {
@@ -28,6 +26,12 @@ public class Job {
         this.tasks = new ArrayList<>();
     }
 
+    public Job(int job_id, int allocate_minutes, List<Task> tasks) {
+        this.job_id = job_id;
+        this.allocate_minutes = allocate_minutes;
+        this.tasks = tasks;
+    }
+
     public void write_files(Path jobs_folder){
 
         try {
@@ -37,41 +41,18 @@ public class Job {
             if (!Files.exists(path))
                 Files.createDirectory(path);
 
-            // write job file
-            Path job_file = Paths.get(path.toString(),"tf_job");
-            PrintWriter job_writer = new PrintWriter(job_file.toFile(), "UTF-8");
-            job_writer.write(get_job_string(path,job_id));
-            job_writer.close();
-
-            // write serial and mpi task executable file
-            if (tasks.stream().anyMatch(t -> t.type == Task.TaskType.SERIAL))
-                write_executable_file(path, "serial_task.sh", get_serial_run_string());
-            if (tasks.stream().anyMatch(t -> t.type == Task.TaskType.MPI))
-                write_executable_file(path, "mpi_task.sh", get_mpi_run_string());
-
-            // write tasks file
-            Path tasks_file = Paths.get(path.toString(), "tasks");
-            PrintWriter tasks_writer = new PrintWriter(tasks_file.toFile(), "UTF-8");
-            for (Task task : tasks)
-                tasks_writer.write(String.format("%s %d %s %d\n",
-                        script_name.get(task.type),
-                        task.task_id,
-                        GenerateTaskFarmer.scenario_map.get(task.config_id).config,
-                        task.num_partitions));
-            tasks_writer.close();
-
             // write manual batch runner
             Path manual_file = Paths.get(path.toString(),"manual_job");
             PrintWriter manual_writer = new PrintWriter(manual_file.toFile(), "UTF-8");
-            int total_nodes = tasks.stream().mapToInt(x->x.num_nodes).sum();
-            int total_minutes = tasks.stream().mapToInt(x->x.max_run_minutes).max().getAsInt() * 2;
+            int total_nodes = tasks.stream().mapToInt(x->x.get_num_nodes()).sum();
+//            int total_minutes = tasks.stream().mapToInt(x->x.max_run_minutes).max().getAsInt() * 2;
+            int total_minutes = 100;
             manual_writer.write(get_manual_batch_string(path,job_id,total_nodes,total_minutes));
             for (Task task : tasks)
-                manual_writer.write(String.format("mpiexec -N %d -n %d java -cp $OTMSIMJAR:$HOME/otm-mpi/out_mpijavac runner/RunnerTask %d %s &\n",
-                        task.num_nodes,
+                manual_writer.write(String.format("mpiexec -N %d -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$HOME/otm-mpi/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
+                        task.get_num_nodes(),
                         task.num_partitions,
-                        task.task_id,
-                        GenerateTaskFarmer.scenario_map.get(task.config_id).config) );
+                        task.prefix) );
             manual_writer.write("wait\n");
             manual_writer.close();
 
@@ -171,7 +152,7 @@ public class Job {
                         "#!/bin/bash\n" +
                         "mkdir $SCRATCH/out/$1\n" +
                         "java -cp $BEATSSIMJAR:$HOME/beats-mpi/out_javac runner/RunnerSerial true $SCRATCH/cfg/$2 %.0f %.0f %.0f $SCRATCH/out/$1\n",
-                GenerateTaskFarmer.sim_dt,null,GenerateTaskFarmer.duration);
+                MakeScripts.sim_dt,null,MakeScripts.duration);
     }
 
     public String get_mpi_run_string(){

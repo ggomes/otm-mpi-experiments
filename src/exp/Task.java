@@ -1,22 +1,33 @@
 package exp;
 
+import java.nio.file.Path;
+
 public class Task {
 
     public enum TaskType {SERIAL,MPI}
     public int task_id;
-    public TaskType type;
-    public int config_id;
+    public String config_name;
+    public Path prefix;
     public int num_partitions;
-    public int num_nodes;
-    public int max_run_minutes;
+    public int repetition;
 
-    public Task(int task_id, TaskType type, int config_id, int num_partitions,int max_run_minutes) {
+    public Task(int task_id, String config_name,Path prefix, int num_partitions, int repetition) {
         this.task_id = task_id;
-        this.type = type;
-        this.config_id = config_id;
+        this.config_name = config_name;
+        this.prefix = prefix;
         this.num_partitions = num_partitions;
-        this.num_nodes = 1 + Math.floorDiv(num_partitions,32);
-        this.max_run_minutes = max_run_minutes;
+        this.repetition = repetition;
     }
 
+    public int get_num_nodes(){
+        return 1 + Math.floorDiv(num_partitions,32);
+    }
+
+    public TaskType get_type(){
+        return num_partitions==1 ? TaskType.SERIAL : TaskType.MPI;
+    }
+
+    public String get_prefix(){
+        return prefix.getFileName().toString();
+    }
 }

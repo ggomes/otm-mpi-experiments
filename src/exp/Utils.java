@@ -1,6 +1,5 @@
 package exp;
 
-import java.io.File;
 import java.io.IOException;
 import java.nio.file.DirectoryStream;
 import java.nio.file.Files;
@@ -23,8 +22,16 @@ public class Utils {
     }
 
     public static Path get_config_path(){
-        Path root = Paths.get(System.getProperty("user.dir"));
-        return Paths.get(root.toString(), "cfg");
+        return Paths.get(get_root_path().toString(), "cfg");
+    }
+
+    public static Path get_jobs_path(){
+        return Paths.get(get_root_path().toString(), "jobs");
+
+    }
+
+    public static Path get_root_path(){
+        return Paths.get(System.getProperty("user.dir"));
     }
 
 }
