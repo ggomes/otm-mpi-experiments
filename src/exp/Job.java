@@ -48,8 +48,8 @@ public class Job {
             int total_minutes = 40;
             manual_writer.write(get_manual_batch_string(path,job_id,total_nodes,total_minutes));
             for (Task task : tasks)
-                manual_writer.write(String.format("mpiexec -N %d -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
-                        task.get_num_nodes(),
+                manual_writer.write(String.format("mpiexec -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
+//                        task.get_num_nodes(),
                         task.num_partitions,
                         task.get_prefix_generic()) );
             manual_writer.write("wait\n");
