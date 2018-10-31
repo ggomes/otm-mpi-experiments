@@ -42,7 +42,8 @@ public class Task {
     }
 
     public String get_prefix_generic(){
-        return Utils.to_generic(String.format("%s_%d",prefix.toString(),repetition));
+        return Utils.to_generic(prefix.toString());
+//        return Utils.to_generic(String.format("%s_%d",prefix.toString(),repetition));
     }
 
     public String get_config_name(){
