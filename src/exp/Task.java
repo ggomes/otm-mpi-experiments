@@ -7,19 +7,27 @@ public class Task {
     public enum TaskType {SERIAL,MPI}
     public int task_id;
     public String config;
-    public String config_name;
+    public int num_nodes;
     private Path prefix;
     public int num_partitions;
     public int repetition;
 
-    public Task(int task_id, String config,String config_name,Path prefix, int num_partitions, int repetition) {
+    public Task(int task_id, String config,int num_nodes,Path prefix, int num_partitions, int repetition) {
         this.task_id = task_id;
         this.config = config;
-        this.config_name = config_name;
+        this.num_nodes = num_nodes;
         this.prefix = prefix;
         this.num_partitions = num_partitions;
         this.repetition = repetition;
     }
+
+    public int get_size(){
+        return  num_nodes / num_partitions;
+    }
+
+//    public int num_nodes(){
+//
+//    }
 
     public int get_num_nodes(){
         return 1 + Math.floorDiv(num_partitions,32);
@@ -35,5 +43,9 @@ public class Task {
 
     public String get_prefix_generic(){
         return Utils.to_generic(String.format("%s_%d",prefix.toString(),repetition));
+    }
+
+    public String get_config_name(){
+        return String.format("%d",num_nodes);
     }
 }

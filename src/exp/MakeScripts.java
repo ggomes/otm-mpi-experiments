@@ -8,17 +8,23 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 
+import static java.util.stream.Collectors.toList;
+
 public class MakeScripts {
 
     public static Path script_folder;
     public static Path split_files_folder;
 
-    public static float sim_dt = 2f;
-    public static float duration = 1000f;
+    public static final int num_jobs = 6;
+    public static final int job_minutes = 120;
+
+    public static final float sim_dt = 2f;
+    public static final float duration = 1000f;
+    public static final int num_repetitions = 5;
+    public static final int max_exponent = 7;
+
     public static int task_id = 0;
     public static int job_id = 0;
-    public static int num_repetitions = 5;
-    public static int max_exponent = 7;
 
     public static void main(String[] args) {
 
@@ -57,7 +63,7 @@ public class MakeScripts {
                 Path prefix = Paths.get(out_path.toString(),String.format("%s_%d", config_name, num_partitions));
 
                 for(int r=0;r<num_repetitions;r++)
-                    tasks.add(new Task(task_id++,config,config_name,prefix,num_partitions,r));
+                    tasks.add(new Task(task_id++,config,num_nodes,prefix,num_partitions,r));
             }
         }
         return tasks;
@@ -76,7 +82,7 @@ public class MakeScripts {
             task_writer.write("javac -d $OTMMPIHOME/out_javac -cp $OTMSIMJAR:$OTMMPIHOME/lib/* metis/*.java metagraph/*.java translator/*.java xmlsplitter/*.java\n");
             task_writer.write("cd $OTMMPIHOME/out_javac\n");
             for(Task task : tasks){
-                Path out_path = Paths.get(split_files_folder.toString(), task.config_name,String.format("%d",task.num_partitions));
+                Path out_path = Paths.get(split_files_folder.toString(), task.get_config_name(),String.format("%d",task.num_partitions));
                 task_writer.write(String.format("mkdir -p %s\n",out_path));
                 File config_file = new File(task.config);
                 task_writer.write(String.format("java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter %s %s %d\n",
@@ -96,21 +102,37 @@ public class MakeScripts {
 
         List<Job> jobs = new ArrayList<>();
 
-        Map<String,List<Task>> config_to_tasks = new HashMap<>();
+        List<Integer> task_size = tasks.stream().map(x->x.get_size()).collect(toList());
 
-        for(Task task : tasks){
-            if(config_to_tasks.containsKey(task.config_name)){
-                config_to_tasks.get(task.config_name).add(task);
-            } else {
-                List<Task> x = new ArrayList<>();
-                x.add(task);
-                config_to_tasks.put(task.config_name,x);
+        int total_size = tasks.stream().mapToInt(x->x.get_size()).sum();
+
+        float avg_job_size =((float) total_size) / ((float)num_jobs);
+
+        Job curr_job = new Job(job_id++,100);
+        jobs.add(curr_job);
+        for(Task task : tasks)
+            if(curr_job.get_size()<avg_job_size)
+                curr_job.tasks.add(task);
+            else {
+                curr_job = new Job(job_id++, 100);
+                jobs.add(curr_job);
             }
-        }
 
-        // put them all into a single job
-        for(List<Task> e : config_to_tasks.values())
-            jobs.add(new Job(job_id++, 100, e));
+//        Map<String,List<Task>> config_to_tasks = new HashMap<>();
+//
+//        for(Task task : tasks){
+//            if(config_to_tasks.containsKey(task.get_config_name())){
+//                config_to_tasks.get(task.get_config_name()).add(task);
+//            } else {
+//                List<Task> x = new ArrayList<>();
+//                x.add(task);
+//                config_to_tasks.put(task.get_config_name(),x);
+//            }
+//        }
+//
+//        // put them all into a single job
+//        for(List<Task> e : config_to_tasks.values())
+//            jobs.add(new Job(job_id++, 100, e));
 
         return jobs;
     }
@@ -122,7 +144,7 @@ public class MakeScripts {
 
         // write individual job files
         for(Job job : jobs)
-            job.write_files(jobs_folder,sim_dt,duration);
+            job.write_files(jobs_folder,sim_dt,duration,job_minutes);
 
         // write job and task list
         try {
