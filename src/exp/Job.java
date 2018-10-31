@@ -20,19 +20,13 @@ public class Job {
     public int allocate_nodes;
     public List<Task> tasks;
 
-    public Job(int job_id, int allocate_minutes) {
-        this.job_id = job_id;
-        this.allocate_minutes = allocate_minutes;
-        this.tasks = new ArrayList<>();
-    }
-
     public Job(int job_id, int allocate_minutes, List<Task> tasks) {
         this.job_id = job_id;
         this.allocate_minutes = allocate_minutes;
         this.tasks = tasks;
     }
 
-    public void write_files(Path jobs_folder){
+    public void write_files(Path jobs_folder,float sim_dt,float duration){
 
         try {
 
@@ -48,9 +42,8 @@ public class Job {
             int total_minutes = 40;
             manual_writer.write(get_manual_batch_string(path,job_id,total_nodes,total_minutes));
             for (Task task : tasks)
-                manual_writer.write(String.format("mpiexec -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s 2 1000 false &\n",
-                        task.num_partitions,
-                        task.get_prefix_generic()) );
+                manual_writer.write(String.format("mpiexec -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s %.0f %.0f false &\n",
+                        task.num_partitions, task.get_prefix_generic(),sim_dt,duration));
             manual_writer.write("wait\n");
             manual_writer.close();
 
@@ -68,8 +61,6 @@ public class Job {
 
         String generic_path = Utils.to_generic(path.toString());
 
-//        String errorfile = Paths.get(generic_path,"std_error").toString();
-//        String outfile = Paths.get(generic_path,"std_out").toString();
         String jobname = String.format("job%d",job_id);
 
         Date d = new Date(total_minutes * 60L * 1000L);
@@ -82,16 +73,12 @@ public class Job {
                         "#SBATCH --nodes=%d\n"+
                         "#SBATCH --time=%s\n"+
                         "#SBATCH --job-name=%s\n"+
-//                        "#SBATCH --error=%s\n"+
-//                        "#SBATCH --output=%s\n"+
                         "#SBATCH --mail-user=gomes@berkeley.edu\n"+
                         "#SBATCH --mail-type=ALL,TIME_LIMIT\n"+
                         "#SBATCH --constraint=haswell\n"+
                         "#SBATCH --qos=regular\n"+
-//                        "#SBATCH --ntasks-per-node=1\n"+
-//                        "#SBATCH --license=SCRATCH\n"+
                         "#SBATCH --output=my_job.o%%j\n"
-                        , total_nodes,time,jobname); //,errorfile,outfile );
+                        , total_nodes,time,jobname);
     }
 
 }

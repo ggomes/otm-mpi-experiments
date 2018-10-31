@@ -8,9 +8,33 @@
 #SBATCH --qos=regular
 #SBATCH --output=my_job.o%j
 mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/1/100_1 2 1000 false &
+mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
+mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
+mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
+mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
 mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/2/100_2 2 1000 false &
 mpiexec -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -n 4 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/4/100_4 2 1000 false &
+mpiexec -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
+mpiexec -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
+mpiexec -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
+mpiexec -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
 mpiexec -n 8 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 2 1000 false &
 mpiexec -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -n 16 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 2 1000 false &
+mpiexec -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
+mpiexec -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
+mpiexec -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
+mpiexec -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
 mpiexec -n 32 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 2 1000 false &
 wait

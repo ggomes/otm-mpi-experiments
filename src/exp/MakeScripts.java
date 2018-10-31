@@ -17,7 +17,7 @@ public class MakeScripts {
     public static float duration = 1000f;
     public static int task_id = 0;
     public static int job_id = 0;
-    public static int num_repetitions = 1;
+    public static int num_repetitions = 5;
     public static int max_exponent = 7;
 
     public static void main(String[] args) {
@@ -50,11 +50,10 @@ public class MakeScripts {
                 if( num_nodes>5000 && num_partitions<4 )
                     continue;
 
-                if( num_nodes>10000 && num_partitions<16 )
+                if( num_nodes>10000 && num_partitions<32 )
                     continue;
 
                 Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
-//                boolean x = new File(out_path.toUri()).mkdirs();
                 Path prefix = Paths.get(out_path.toString(),String.format("%s_%d", config_name, num_partitions));
 
                 for(int r=0;r<num_repetitions;r++)
@@ -123,7 +122,7 @@ public class MakeScripts {
 
         // write individual job files
         for(Job job : jobs)
-            job.write_files(jobs_folder);
+            job.write_files(jobs_folder,sim_dt,duration);
 
         // write job and task list
         try {
