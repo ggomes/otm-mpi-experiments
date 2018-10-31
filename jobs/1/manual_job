@@ -2,13 +2,10 @@
 #SBATCH --nodes=6
 #SBATCH --time=00:40:00
 #SBATCH --job-name=job1
-#SBATCH --error=$HOME/code/otm-mpi-experiments/jobs/1/std_error
-#SBATCH --output=$HOME/code/otm-mpi-experiments/jobs/1/std_out
 #SBATCH --mail-user=gomes@berkeley.edu
 #SBATCH --mail-type=ALL,TIME_LIMIT
 #SBATCH --constraint=haswell
 #SBATCH --qos=regular
-#SBATCH --license=SCRATCH
 #SBATCH --output=my_job.o%j
 mpiexec -n 1 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/2500/1/2500_1 2 1000 false &
 mpiexec -n 2 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/2500/2/2500_2 2 1000 false &
