@@ -3,160 +3,152 @@ function make_plots()
 close all
 
 Aarray = struct(...
-    'load',[],  ...
-    'run',[],...
-    'metis_run',[],...
-    'metagraph_config',[],...
-    'create_subscenario',[],...
-    'create_translator',[],...
-    'comminication',[],...
-    'num_double_send',[],...
-    'num_double_receive',[]);
+    'metagraph_load',[],  ...
+    'scenario_load',[],  ...
+    'translator_load',[],  ...
+    'run',[],  ...
+    'comm',[],  ...
+    'double_send',[],  ...
+    'double_receive',[] );
 
 Anan = struct(...
-    'load',nan,...
-    'run',nan,...
-    'metis_run',nan,...
-    'metagraph_config',nan,...
-    'create_subscenario',nan,...
-    'create_translator',nan,...
-    'comminication',nan,...
-    'num_double_send',nan,...
-    'num_double_receive',nan);
+    'metagraph_load',nan,  ...
+    'scenario_load',nan,  ...
+    'translator_load',nan,  ...
+    'run',nan,  ...
+    'comm',nan,  ...
+    'double_send',nan,  ...
+    'double_receive',nan );
 
 here = fileparts(mfilename('fullpath'));
 root = fileparts(fileparts(here));
-hpc_folder = fullfile(root,'output_hpc');
-jobs_folder = fullfile(hpc_folder,'jobs');
-data_folder = fullfile(hpc_folder,'out');
-out_folder = fullfile(root,'output_analysis');
+jobs_folder = fullfile(root,'jobs');
+data_folder = fullfile(root,'split_files');
+out_folder = fullfile(root,'ppt');
 
 T = readtable(fullfile(jobs_folder,'task_list.txt'));
-unique_configs = sort(unique(T.configid));
+T.config = nan(size(T,1),1);
+for i=1:size(T,1)
+    z = sscanf(T.prefix{i},'%d_%d');
+    T.config(i) = z(1);
+end
+size(T,1)
+
+unique_configs = sort(unique(T.config));
+
 for ic = 1:numel(unique_configs)
-                
-    configid = unique_configs(ic);
-    Tx = T(T.configid==configid,:);
+           
+    config = unique_configs(ic);
+    Tx = T(T.config==config,:);
     unique_n = sort(unique(Tx.n));
     
     A = Aarray;
     A.n = [];
+    folder1 = fullfile(data_folder,sprintf("%d",config));
+
+    data = table(   'Size',[numel(unique_n) 12], ...
+                    'VariableTypes',{'double','double'  ,'double'   ,'double'   ,'double' ,'double'  ,'double' ,'double'  ,'double'   ,'double'  ,'double'     ,'double'}, ...
+                    'VariableNames',{   'n'  ,'load_min','load_mean','load_max' ,'run_min','run_mean','run_max','comm_min','comm_mean','comm_max','double_send','double_receive'});
+
+    remove_row = false(numel(unique_n),1);
     for in = 1:numel(unique_n)
                 
         n = unique_n(in);
         Txx = Tx(Tx.n==n,:);
-        num_rep = size(Txx,1);
-        
-        %  task type
-        unique_type = unique(Txx.type);
-        if numel(unique_type)~=1
-            error('asdf')
-        end
-        task_type = unique_type{1};
-        
+        folder2 = fullfile(folder1,sprintf("%d",n));
+
         % iterate over repetitions
-        timers = repmat(Anan,1,num_rep);
-        for ir = 1:num_rep
-            task_id = Txx.x_taskid(ir);
-            folder = fullfile(data_folder,sprintf("%.3d",task_id));
-            if ~check_complete(folder,task_type,n)
-                warning(sprintf('incomplete run: task id %d',task_id))
-            else
-                timers(ir) = read_timers(folder,task_type,n,Anan);
-            end
+        timers = repmat(Anan,1,size(Txx,1));
+        for ir = 1:size(Txx,1)        
+            Txxx = Txx(Txx.repetition==Txx.repetition(ir),:);
+            timers(ir) = read_timers(folder2,Txxx,Anan);
         end
-        clear task_id ir folder
+        clear Txxx ir
         
         % gather timer info
-        z = fields(timers);
-        for i=1:numel(z)
-            A.(z{i}) = [A.(z{i}) ; [timers.(z{i})]'];
-        end
-        A.n = [A.n;n*ones(numel(timers),1)];
+        data.n(in) = n;
         
-        clear Txx z i n num_rep ir task_type unique_type timers
+        load_time = [timers.metagraph_load]+[timers.scenario_load]+[timers.translator_load];
+        data.load_min(in) = min(load_time);
+        data.load_mean(in) = mean(load_time);
+        data.load_max(in) = max(load_time);
+        
+        data.run_min(in) = min([timers.run]);
+        data.run_mean(in) = mean([timers.run]);
+        data.run_max(in) = max([timers.run]);
+        
+        data.comm_min(in) = min([timers.comm]);
+        data.comm_mean(in) = mean([timers.comm]);
+        data.comm_max(in) = max([timers.comm]);
+        
+        if all(isnan([timers.double_send]))
+            data.double_send(in) = nan;
+            data.double_receive(in) = nan;
+        else
+            data.double_send(in) = unique([timers.double_send]);
+            data.double_receive(in) = unique([timers.double_receive]);
+        end
+        
+        remove_row(in) = all(isnan(table2array(data(in,2:end))));
+        
+        clear n Txx folder2 timers z i
     end
     clear Tx in
     
+    data(remove_row,:)=[];
+    sortrows(data);
+    
     % plots
-    comm_plot(A,configid,out_folder);
-    pieplots(A,configid,out_folder)
-    speedplots(A,configid,out_folder)
+    if ~isempty(data)
+        comm_plot(data,config,out_folder);
+        pieplots(data,config,out_folder)
+        speedplots(data,config,out_folder)
+    end
 
 end
 clear ic
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function [b]=check_complete(folder,task_type,n)
+function A = read_timers(folder,T,Astruct)
 
-switch(task_type)
-    case 'SERIAL'
-        expected_files{1} = 'serial_10_g_link_veh.txt';
-        expected_files{2} = 'serial_10_g_link_veh_links.txt';
-        expected_files{3} = 'serial_10_g_link_veh_time.txt';
-        expected_files{4} = 'serial_timers.txt';
-        
-        
-    case 'MPI'
-        expected_files{1} = '_metis';
-        expected_files{2} = '_nodemap.txt';        
-        expected_files{3} = ['_metis.part.' num2str(n)];
-        for i=0:n-1
-            expected_files{end+1} = ['mpi' num2str(i) '_10_g_link_veh.txt'];
-            expected_files{end+1} = ['mpi' num2str(i) '_10_g_link_veh_links.txt'];
-            expected_files{end+1} = ['mpi' num2str(i) '_10_g_link_veh_time.txt'];
-            expected_files{end+1} = ['mpi' num2str(i) '_timers.txt'];
-        end
-        
-    otherwise
-        
-end
-
-a = dir(folder);
-a = a(~[a.isdir]);
-b = ( numel(expected_files)==numel(a) ) && all(ismember(expected_files,{a.name}));
-
-function A = read_timers(folder,task_type,n,Astruct)
-
-As = repmat(Astruct,1,n);
-for in=0:n-1
-    switch task_type
-        case 'SERIAL'
-            S = fileread(fullfile(folder,'serial_timers.txt'));
-        case 'MPI'
-            S = fileread(fullfile(folder,['mpi' num2str(in) '_timers.txt']));
-    end
-    C = regexpi(S,'(\w+)\s(\d*.\d*)','tokens');
-    for c=1:numel(C)
-        As(in+1).(C{c}{1}) = str2double(C{c}{2});
-    end
+if size(T,1)>1
+    error('size(T,1)>1')
 end
 
 A = Astruct;
-A.load                  = max([As.load]);
-A.run                   = max([As.run]);
-A.metis_run             = max([As.metis_run]);
-A.metagraph_config      = max([As.metagraph_config]);
-A.create_subscenario    = max([As.create_subscenario]);
-A.create_translator     = max([As.create_translator]);
-A.comminication         = max([As.comminication]);
-A.num_double_send       = sum([As.num_double_send]);
-A.num_double_receive    = sum([As.num_double_receive]);
+n = unique(T.n);
+config = unique(T.config);
+rep = unique(T.repetition);
 
-function comm_plot(A,config,out_folder)
-
-n = sort(unique(A.n));
-SND = nan(1,numel(n));
-for in=1:numel(n)
-    ind = A.n==n(in);
-    snd = A.num_double_send(ind);
-    SND(in) = mean(snd);
+filename = fullfile(folder,sprintf('%d_%d_%d_%d_timers.txt',config,n,0,rep));
+if ~exist(filename,'file')
+    return
 end
+    
+As = repmat(Astruct,1,n);
+for in=1:n
+    filename = fullfile(folder,sprintf('%d_%d_%d_%d_timers.txt',config,n,in-1,rep));
+    S = fileread(filename);
+    C = regexpi(S,'(\w+)\s(\d*.\d*)','tokens');
+    for c=1:numel(C)
+        As(in).(C{c}{1}) = str2double(C{c}{2});
+    end
+end
+
+A.metagraph_load	= mean([As.metagraph_load]);
+A.scenario_load 	= mean([As.scenario_load]);
+A.translator_load   = mean([As.translator_load]);
+A.run               = mean([As.run]);
+A.comm              = mean([As.comm]);
+A.double_send       = sum([As.double_send]);
+A.double_receive    = sum([As.double_receive]);
+
+function comm_plot(data,config,out_folder)
 
 figure('Visible','off')
 [ppt,op]=openppt(fullfile(out_folder,sprintf('commplot_%d',config)),true);
-plot(n,SND,'LineWidth',1.5,'Marker','.','MarkerSize',13)
+plot(data.n,data.double_send,'LineWidth',1.5,'Marker','.','MarkerSize',13)
 xlabel('# MPI processes')
 ylabel('# doubles')
 grid
@@ -164,7 +156,7 @@ tit = sprintf('Communication config %d',config);
 addslide(op,tit,'new',[0.5 0.5],[],0.9)
 
 clf
-plot(log2(n),SND,'LineWidth',1.5,'Marker','.','MarkerSize',13)
+plot(log2(data.n),data.double_send,'LineWidth',1.5,'Marker','.','MarkerSize',13)
 xlabel('log(# MPI processes)')
 ylabel('# doubles')
 grid
@@ -173,53 +165,22 @@ addslide(op,tit,'new',[0.5 0.5],[],0.9)
 close
 closeppt(ppt,op)
 
-function []=pieplots(A,config,out_folder)
-
-unique_n = unique(A.n);
+function []=pieplots(data,config,out_folder)
 
 figure('Visible','off')
 [ppt,op]=openppt(fullfile(out_folder,sprintf('pieplots_%d',config)),true);
 
 % pie plot for times of each run
-for in=1:numel(unique_n)
-        
-    ind = A.n==unique_n(in);
-    
-    M = struct(...
-        'load' , meanwithnan(A.load(ind)) , ...
-        'run_all' , meanwithnan(A.run(ind)) , ...
-        'run_comm' , meanwithnan(A.comminication(ind)) , ...
-        'metis_run' , meanwithnan(A.metis_run(ind)) , ...
-        'other',meanwithnan(A.metagraph_config(ind))+meanwithnan(A.create_subscenario(ind)));
-    
+for in=1:numel(data.n)
+            
     clf
-    
-    if unique_n(in)==1
-        pie( [M.load M.run_all] , ...
-            {sprintf('load (%.1f)',M.load) , ...
-            sprintf('run (%.1f)',M.run_all) })
-        tit = sprintf('Config %d, serial run',config);
-    else
-        data = [M.load M.metis_run M.other M.run_comm M.run_all-M.run_comm];
-        
-        if all(isnan(data))
-            continue
-        else
-            if any(isnan(data))
-                error('asdgas')
-            end
 
-            pie( [M.load M.metis_run M.other M.run_comm M.run_all-M.run_comm] , { ...
-                sprintf('load (%.1f)',M.load) , ...
-                sprintf('METIS (%.1f)',M.metis_run) , ...
-                sprintf('other (%.1f)',M.other) ...
-                sprintf('run comm (%.1f)',M.run_comm) , ...
-                sprintf('run comp (%.1f)',M.run_all-M.run_comm) , ...
-                })
-        end
-        
-        tit = sprintf('Config %d with %d MPI processes',config,unique_n(in));
-    end
+    pie( [data.load_mean(in) data.run_mean(in) data.comm_mean(in)] , { ...
+        sprintf('load (%.1f)',data.load_mean(in)) , ...
+        sprintf('run (%.1f)',data.run_mean(in)) , ...
+        sprintf('comm (%.1f)',data.comm_mean(in)) })
+
+    tit = sprintf('Config %d with %d MPI processes',config,data.n(in));
     
     addslide(op,tit,'new',[0.5 0.5],[],0.9)
     
@@ -227,32 +188,16 @@ end
 close
 closeppt(ppt,op)
 
-function []=speedplots(A,config,out_folder)
+function []=speedplots(data,config,out_folder)
 
 figure('Visible','off')
 [ppt,op]=openppt(fullfile(out_folder,sprintf('speedplots_%d',config)),true);
 
-data.run = extract_stats(A,'run');
-data.load = extract_stats(A,'load');
-data.comm = extract_stats(A,'comminication');
-data.send = extract_stats(A,'num_double_send');
-data.rcv = extract_stats(A,'num_double_receive');
-
-% speedup
-N = numel(data.run.n);
-data.speedup = struct('n',data.run.n,'mean',nan(N,1),'std',nan(N,1));
-mean_serial = data.run.mean(data.run.n==1);
-for i=1:numel(data.run.n)
-    vals = mean_serial./data.run.vals{i};
-    data.speedup.mean(i) = mean(vals);
-    data.speedup.std(i) = std(vals);
-end
-
 % run
 clf, hold on
-h(1)=plot_fill(data.run);
-h(2)=plot_fill(data.load);
-h(3)=plot_fill(data.comm);
+h(1)=plot_fill(data.n,data.run_min,data.run_mean,data.run_max);
+h(2)=plot_fill(data.n,data.load_min,data.load_mean,data.load_max);
+h(3)=plot_fill(data.n,data.comm_min,data.comm_mean,data.comm_max);
 legend(h,'run','load','comm')
 xlabel('# MPI processes')
 ylabel('time [sec]')
@@ -260,11 +205,10 @@ grid
 tit = sprintf('Config %d',config);
 addslide(op,tit,'new',[0.5 0.5],[],0.9)
 
-
 clf, hold on
-h(1)=plot_fill_log(data.run);
-h(2)=plot_fill_log(data.load);
-h(3)=plot_fill_log(data.comm);
+h(1)=plot_fill(log2(data.n),data.run_min,data.run_mean,data.run_max);
+h(2)=plot_fill(log2(data.n),data.load_min,data.load_mean,data.load_max);
+h(3)=plot_fill(log2(data.n),data.comm_min,data.comm_mean,data.comm_max);
 legend(h,'run','load','comm')
 xlabel('log2(# MPI processes)')
 ylabel('time [sec]')
@@ -273,49 +217,52 @@ tit = sprintf('Config %d',config);
 addslide(op,tit,'new',[0.5 0.5],[],0.9)
 
 % speedup
-clf, hold on
-plot_fill(data.speedup);
-min_n = data.run.n(1);
-max_n = data.run.n(find(~isnan(data.run.mean),1,'last'));
-plot([min_n max_n],[min_n max_n],'k--','LineWidth',1.5)
-xlabel('# MPI processes')
-ylabel('ratio')
-grid
-tit = sprintf('Config %d',config);
-addslide(op,tit,'new',[0.5 0.5],[],0.9)
+if any(data.n==1)
+    
+    mean_serial = data.run_mean(data.n==1);
+    data.speedup_min = mean_serial ./ data.run_max;
+    data.speedup_mean = mean_serial ./ data.run_mean;
+    data.speedup_max= mean_serial ./ data.run_min;
+
+    clf, hold on
+    plot_fill(data.n,data.speedup_min,data.speedup_mean,data.speedup_max);
+    xlabel('# MPI processes')
+    ylabel('ratio')
+    grid
+    tit = sprintf('Config %d',config);
+    addslide(op,tit,'new',[0.5 0.5],[],0.9)
+
+
+    clf, hold on
+    plot_fill(log2(data.n),data.speedup_min,data.speedup_mean,data.speedup_max);
+    xlabel('log2(# MPI processes)')
+    ylabel('speedup')
+    grid
+    tit = sprintf('Config %d',config);
+    addslide(op,tit,'new',[0.5 0.5],[],0.9)
+end
 
 close
 closeppt(ppt,op)
 
-function [data]=extract_stats(A,val)
+% function [data]=extract_stats(A,val)
+% 
+% V = A.(val);
+% n = sort(unique(A.n));
+% data.n = n;
+% data.vals = arrayfun( @(x) V(A.n==x) , n ,'UniformOutput' , false);
+% data.mean = arrayfun(@(x)  mean(x{1}), data.vals);
+% data.median = arrayfun(@(x)  median(x{1}), data.vals);
+% data.std = arrayfun(@(x)  std(x{1}), data.vals);
 
-V = A.(val);
-n = sort(unique(A.n));
-data.n = n;
-data.vals = arrayfun( @(x) V(A.n==x) , n ,'UniformOutput' , false);
-data.mean = arrayfun(@(x)  mean(x{1}), data.vals);
-data.median = arrayfun(@(x)  median(x{1}), data.vals);
-data.std = arrayfun(@(x)  std(x{1}), data.vals);
+% function [M] = meanwithnan(X)
+% M = mean(X(~isnan(X)));
 
-function [M] = meanwithnan(X)
-M = mean(X(~isnan(X)));
+function [h2,h1] = plot_fill(n,xmin,xmean,xmax)
 
-function [h2,h1] = plot_fill(x)
-up = (x.mean + x.std)';
-dn = (x.mean - x.std)';
-h2=plot(x.n,x.mean,'LineWidth',1.5,'Marker','.','MarkerSize',13);
+h2=plot(n,xmean,'LineWidth',1.5,'Marker','.','MarkerSize',13);
 c = h2.get('Color');
-h1=fill([x.n' fliplr(x.n')],[up fliplr(dn)],c);
-h1.FaceAlpha = 0.5;
-h1.EdgeAlpha = 0;
-
-function [h2,h1] = plot_fill_log(x)
-up = (x.mean + x.std)';
-dn = (x.mean - x.std)';
-log2n = log2(x.n);
-h2=plot(log2n,x.mean,'LineWidth',1.5,'Marker','.','MarkerSize',13);
-c = h2.get('Color');
-h1=fill([log2n' fliplr(log2n')],[up fliplr(dn)],c);
+h1=fill([n;flipud(n)],[xmax;flipud(xmin)],c);
 h1.FaceAlpha = 0.5;
 h1.EdgeAlpha = 0;
 
