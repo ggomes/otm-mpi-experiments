@@ -1,0 +1,20 @@
+#!/bin/bash
+#SBATCH --nodes=129
+#SBATCH --time=02:00:00
+#SBATCH --job-name=job7
+#SBATCH --mail-user=gomes@berkeley.edu
+#SBATCH --mail-type=ALL,TIME_LIMIT
+#SBATCH --constraint=haswell
+#SBATCH --qos=regular
+#SBATCH --output=my_job.o%j
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/62500/128/62500_128 0 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/62500/128/62500_128 1 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/62500/128/62500_128 2 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/62500/128/62500_128 3 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/62500/128/62500_128 4 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/10000/128/10000_128 0 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/10000/128/10000_128 1 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/10000/128/10000_128 2 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/10000/128/10000_128 3 2 1000 false &
+mpiexec -c 1 -n 128 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI $HOME/code/otm-mpi-experiments/split_files/10000/128/10000_128 4 2 1000 false &
+wait

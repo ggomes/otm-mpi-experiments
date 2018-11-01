@@ -7,6 +7,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 
@@ -33,7 +34,7 @@ public class MakeScripts {
 
         List<Task> tasks = create_tasks();
         make_splitter_script(tasks);
-        List<Job> jobs = tasks_to_jobs(tasks);
+        List<Job> jobs = tasks_to_jobs_2(tasks);
         make_mpi_scripts(jobs);
     }
 
@@ -50,13 +51,16 @@ public class MakeScripts {
 
                 int num_partitions = (int) Math.pow(2d,log_num_partitions);
 
-                if( 2*num_partitions > num_nodes )
+                if( num_nodes<500 && num_partitions>10)
                     continue;
 
-                if( num_nodes>5000 && num_partitions<4 )
+                if( num_nodes<5000 && num_partitions>100)
                     continue;
 
-                if( num_nodes>10000 && num_partitions<32 )
+                if( num_nodes>5000 && num_partitions<3)
+                    continue;
+
+                if( num_nodes>50000 && num_partitions<10)
                     continue;
 
                 Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
@@ -96,6 +100,18 @@ public class MakeScripts {
             task_writer.close();
         }
 
+    }
+
+    public static List<Job> tasks_to_jobs_2(List<Task> tasks){
+
+        List<Job> jobs = new ArrayList<>();
+
+        for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
+            int num_partitions = (int) Math.pow(2d,log_num_partitions);
+            jobs.add(new Job(job_id++, 100,
+                    tasks.stream().filter(x->x.num_partitions==num_partitions).collect(Collectors.toList())));
+        }
+        return jobs;
     }
 
     public static List<Job> tasks_to_jobs(List<Task> tasks){

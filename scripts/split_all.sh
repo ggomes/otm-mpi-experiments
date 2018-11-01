@@ -42,26 +42,16 @@ mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/8
 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 $HOME/code/otm-mpi-experiments/cfg/100.xml 8
 mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/8
 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/8/100_8 $HOME/code/otm-mpi-experiments/cfg/100.xml 8
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/16
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 $HOME/code/otm-mpi-experiments/cfg/100.xml 16
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/16
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 $HOME/code/otm-mpi-experiments/cfg/100.xml 16
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/16
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 $HOME/code/otm-mpi-experiments/cfg/100.xml 16
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/16
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 $HOME/code/otm-mpi-experiments/cfg/100.xml 16
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/16
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/16/100_16 $HOME/code/otm-mpi-experiments/cfg/100.xml 16
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/32
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 $HOME/code/otm-mpi-experiments/cfg/100.xml 32
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/32
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 $HOME/code/otm-mpi-experiments/cfg/100.xml 32
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/32
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 $HOME/code/otm-mpi-experiments/cfg/100.xml 32
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/32
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 $HOME/code/otm-mpi-experiments/cfg/100.xml 32
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/100/32
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/100/32/100_32 $HOME/code/otm-mpi-experiments/cfg/100.xml 32
+mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/16
+java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/16/62500_16 $HOME/code/otm-mpi-experiments/cfg/62500.xml 16
+mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/16
+java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/16/62500_16 $HOME/code/otm-mpi-experiments/cfg/62500.xml 16
+mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/16
+java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/16/62500_16 $HOME/code/otm-mpi-experiments/cfg/62500.xml 16
+mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/16
+java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/16/62500_16 $HOME/code/otm-mpi-experiments/cfg/62500.xml 16
+mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/16
+java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/16/62500_16 $HOME/code/otm-mpi-experiments/cfg/62500.xml 16
 mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/32
 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/62500/32/62500_32 $HOME/code/otm-mpi-experiments/cfg/62500.xml 32
 mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/62500/32
@@ -222,13 +212,3 @@ mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/64
 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/64/2500_64 $HOME/code/otm-mpi-experiments/cfg/2500.xml 64
 mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/64
 java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/64/2500_64 $HOME/code/otm-mpi-experiments/cfg/2500.xml 64
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/128
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/128/2500_128 $HOME/code/otm-mpi-experiments/cfg/2500.xml 128
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/128
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/128/2500_128 $HOME/code/otm-mpi-experiments/cfg/2500.xml 128
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/128
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/128/2500_128 $HOME/code/otm-mpi-experiments/cfg/2500.xml 128
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/128
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/128/2500_128 $HOME/code/otm-mpi-experiments/cfg/2500.xml 128
-mkdir -p /home/gomes/code/otm-mpi-experiments/split_files/2500/128
-java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:. xmlsplitter.XMLSplitter $HOME/code/otm-mpi-experiments/split_files/2500/128/2500_128 $HOME/code/otm-mpi-experiments/cfg/2500.xml 128

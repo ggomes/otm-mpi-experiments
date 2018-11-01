@@ -45,10 +45,11 @@ public class Job {
             // write manual batch runner
             Path manual_file = Paths.get(path.toString(),"manual_job");
             PrintWriter manual_writer = new PrintWriter(manual_file.toFile(), "UTF-8");
-            int total_nodes = tasks.stream().mapToInt(x->x.get_num_nodes()).max().getAsInt() + 1;
+//            int total_nodes = tasks.stream().mapToInt(x->x.get_num_nodes()).max().getAsInt() + 1;
+            int total_nodes = this.tasks.get(0).num_partitions+1;
             manual_writer.write(get_manual_batch_string(job_id,total_nodes,job_minutes));
             for (Task task : tasks)
-                manual_writer.write(String.format("mpiexec -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s %d %.0f %.0f false &\n",
+                manual_writer.write(String.format("mpiexec -c 1 -n %d java -cp $OTMSIMJAR:$OTMMPIHOME/lib/*:$OTMMPIHOME/out_mpijavac runner/RunnerMPI %s %d %.0f %.0f false &\n",
                         task.num_partitions, task.get_prefix_generic(),task.repetition,sim_dt,duration));
             manual_writer.write("wait\n");
             manual_writer.close();
