@@ -32,11 +32,10 @@ for i=1:size(T,1)
     z = sscanf(T.prefix{i},'%d_%d');
     T.config(i) = z(1);
 end
-size(T,1)
 
 unique_configs = sort(unique(T.config));
 
-for ic = 1:numel(unique_configs)
+for ic = 4:numel(unique_configs)
            
     config = unique_configs(ic);
     Tx = T(T.config==config,:);
@@ -167,8 +166,19 @@ closeppt(ppt,op)
 
 function []=pieplots(data,config,out_folder)
 
-figure('Visible','off')
+figure('Visible','on')
 [ppt,op]=openppt(fullfile(out_folder,sprintf('pieplots_%d',config)),true);
+
+D = [data.load_mean data.run_mean data.comm_mean];
+D = D ./ (sum(D,2)*ones(1,3));
+
+bar(log2(data.n),D,'stacked')
+legend('load','run','comm')
+xlabel('log(# MPI processes)')
+
+addslide(op,'','new',[0.5 0.5],[],0.9)
+
+clear D
 
 % pie plot for times of each run
 for in=1:numel(data.n)
@@ -190,7 +200,7 @@ closeppt(ppt,op)
 
 function []=speedplots(data,config,out_folder)
 
-figure('Visible','off')
+figure('Visible','on')
 [ppt,op]=openppt(fullfile(out_folder,sprintf('speedplots_%d',config)),true);
 
 % run
@@ -212,6 +222,15 @@ h(3)=plot_fill(log2(data.n),data.comm_min,data.comm_mean,data.comm_max);
 legend(h,'run','load','comm')
 xlabel('log2(# MPI processes)')
 ylabel('time [sec]')
+grid
+tit = sprintf('Config %d',config);
+addslide(op,tit,'new',[0.5 0.5],[],0.9)
+
+figure
+clf, hold on 
+plot(log2(data.n),log(data.run_mean+data.load_mean+data.comm_mean),'ko-','LineWidth',2);
+xlabel('log2(# MPI processes)')
+ylabel('log( time [sec] )')
 grid
 tit = sprintf('Config %d',config);
 addslide(op,tit,'new',[0.5 0.5],[],0.9)
