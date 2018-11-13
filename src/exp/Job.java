@@ -45,7 +45,6 @@ public class Job {
             // write manual batch runner
             Path manual_file = Paths.get(path.toString(),"manual_job");
             PrintWriter manual_writer = new PrintWriter(manual_file.toFile(), "UTF-8");
-//            int total_nodes = tasks.stream().mapToInt(x->x.get_num_nodes()).max().getAsInt() + 1;
             int total_nodes = this.tasks.get(0).num_partitions+1;
             manual_writer.write(get_manual_batch_string(job_id,total_nodes,job_minutes));
             for (Task task : tasks)

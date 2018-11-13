@@ -21,11 +21,40 @@ public class MakeScripts {
 
     public static final float sim_dt = 2f;
     public static final float duration = 1000f;
-    public static final int num_repetitions = 5;
-    public static final int max_exponent = 7;
+    public static final int num_repetitions = 1;
 
     public static int task_id = 0;
     public static int job_id = 0;
+
+    public static Map<Integer,List<Integer>> numnodes_to_logpartitions;  // [min,max] for each config
+
+    static {
+
+        numnodes_to_logpartitions = new HashMap<>();
+
+        List<Integer> a;
+
+        a = new ArrayList<>();
+        a.add(0);
+        a.add(3);
+        numnodes_to_logpartitions.put(100,a);
+
+        a = new ArrayList<>();
+        a.add(0);
+        a.add(6);
+        numnodes_to_logpartitions.put(2500,a);
+
+        a = new ArrayList<>();
+        a.add(0);
+        a.add(8);
+        numnodes_to_logpartitions.put(10000,a);
+
+        a = new ArrayList<>();
+        a.add(0);
+        a.add(10);
+        numnodes_to_logpartitions.put(62500,a);
+
+    }
 
     public static void main(String[] args) {
 
@@ -47,21 +76,11 @@ public class MakeScripts {
             String config_name =  config_file.getName().replaceFirst("[.][^.]+$", "");
             int num_nodes = Integer.parseInt(config_name);
 
-            for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
+//            for(Integer log_num_partitions : numnodes_to_logpartitions.get(num_nodes)) {
+            List<Integer> range = numnodes_to_logpartitions.get(num_nodes);
+            for(int i=range.get(0);i<=range.get(1);i++) {
 
-                int num_partitions = (int) Math.pow(2d,log_num_partitions);
-
-                if( num_nodes<500 && num_partitions>10)
-                    continue;
-
-                if( num_nodes<5000 && num_partitions>100)
-                    continue;
-
-                if( num_nodes>5000 && num_partitions<3)
-                    continue;
-
-                if( num_nodes>50000 && num_partitions<10)
-                    continue;
+                int num_partitions = (int) Math.pow(2d,i);
 
                 Path out_path = Paths.get(split_files_folder.toString(), config_name,String.format("%d",num_partitions));
                 Path prefix = Paths.get(out_path.toString(),String.format("%s_%d", config_name, num_partitions));
@@ -69,6 +88,7 @@ public class MakeScripts {
                 for(int r=0;r<num_repetitions;r++)
                     tasks.add(new Task(task_id++,config,num_nodes,prefix,num_partitions,r));
             }
+
         }
         return tasks;
 
@@ -105,6 +125,9 @@ public class MakeScripts {
     public static List<Job> tasks_to_jobs_2(List<Task> tasks){
 
         List<Job> jobs = new ArrayList<>();
+
+        int max_partitions = tasks.stream().mapToInt(x->x.num_partitions).max().getAsInt();
+        int max_exponent = 10;  // TODO should be log2(max_partitions)
 
         for(double log_num_partitions=0;log_num_partitions<=max_exponent;log_num_partitions++) {
             int num_partitions = (int) Math.pow(2d,log_num_partitions);
