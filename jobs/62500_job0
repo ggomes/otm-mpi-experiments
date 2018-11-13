@@ -1,0 +1,14 @@
+#!/bin/bash
+#SBATCH --nodes=1
+#SBATCH --time=06:00:00
+#SBATCH --job-name=62500_job0
+#SBATCH --mail-type=ALL,TIME_LIMIT
+#SBATCH --constraint=haswell
+#SBATCH --qos=premium
+#SBATCH --output=my_job.o%j
+
+module load java
+export PATH=$HOME/local/open-mpi/bin:$PATH
+export OMPI_MCA_btl=self,vader,tcp
+
+mpiexec -n 1 --npernode 1 java -cp lib/*:out_mpijavac runner/RunnerMPI split_files/62500/1/62500_1 0 2 1000 false
